@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>名刺メーカー | こだいら災害ボランティアセンターサポーターズ（KODAIRA SVCs）</title>
+  <meta name="description" content="こだいら災害ボランティアセンターサポーターズ（KODAIRA SVCs）の公式ロゴ・QRコード入り名刺をブラウザで作成し、PDF・高解像度画像でダウンロードできるツールです。">
+  <meta property="og:title" content="KODAIRA SVCs 名刺メーカー">
+  <meta property="og:description" content="公式ロゴ・QRコード入りの名刺をブラウザで作成してPDF・画像でダウンロード">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="assets/logo.jpg" type="image/jpeg">
+  <link rel="apple-touch-icon" href="assets/logo.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@400;600;700&family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <img src="assets/logo.jpg" alt="KODAIRA SVCs ロゴ" class="brand-logo">
+      <div>
+        <h1>KODAIRA SVCs 名刺メーカー</h1>
+        <p>こだいら災害ボランティアセンターサポーターズ</p>
+      </div>
+    </div>
+    <a class="hp-link" href="https://violet014560.studio.site/" target="_blank" rel="noopener">公式ホームページ ↗</a>
+  </header>
+
+  <main class="layout">
+    <section class="panel controls">
+      <h2><span class="step">1</span>デザインを選ぶ</h2>
+      <div id="templateGrid" class="template-grid"></div>
+
+      <h2><span class="step">2</span>内容を入力</h2>
+      <form id="form" autocomplete="off" onsubmit="return false">
+        <label class="field">
+          <span>肩書 <em class="req">必須</em></span>
+          <input type="text" name="title" placeholder="例：サポーター／代表／事務局">
+        </label>
+        <label class="field">
+          <span>氏名 <em class="req">必須</em></span>
+          <input type="text" name="name" placeholder="例：小平 太郎">
+        </label>
+        <label class="field">
+          <span>ふりがな・ローマ字 <em class="opt">任意</em></span>
+          <input type="text" name="kana" placeholder="例：Taro Kodaira">
+        </label>
+        <label class="field">
+          <span>メッセージ <em class="opt">任意</em></span>
+          <textarea name="message" rows="2" placeholder="例：いざという時、地域の力に。"></textarea>
+        </label>
+        <div class="field-row">
+          <label class="field">
+            <span>電話番号 <em class="opt">任意</em></span>
+            <input type="tel" name="tel" placeholder="例：090-1234-5678">
+          </label>
+          <label class="field">
+            <span>メール <em class="opt">任意</em></span>
+            <input type="email" name="email" placeholder="例：name@example.com">
+          </label>
+        </div>
+        <label class="field">
+          <span>その他の連絡先 <em class="opt">任意・改行で最大3行</em></span>
+          <textarea name="other" rows="2" placeholder="例：LINE: kodaira-taro"></textarea>
+        </label>
+
+        <h2><span class="step">3</span>オプション</h2>
+        <div class="field">
+          <span>書体</span>
+          <div class="seg" id="fontSeg">
+            <label><input type="radio" name="font" value="gothic" checked><b style="font-family:'Noto Sans JP'">ゴシック</b></label>
+            <label><input type="radio" name="font" value="maru"><b style="font-family:'Zen Maru Gothic'">丸ゴシック</b></label>
+            <label><input type="radio" name="font" value="mincho"><b style="font-family:'Noto Serif JP'">明朝</b></label>
+          </div>
+        </div>
+        <div class="field checks">
+          <label><input type="checkbox" name="showIG" checked> Instagram QRコードを入れる</label>
+          <label><input type="checkbox" name="showHP" checked> ホームページ QRコードを入れる</label>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel preview">
+      <h2>プレビュー <small id="sizeInfo"></small></h2>
+      <div class="preview-stage" id="stage">
+        <canvas id="previewCanvas"></canvas>
+      </div>
+      <p id="warn" class="warn" hidden></p>
+
+      <div class="download">
+        <h3>ダウンロード</h3>
+        <div class="dl-options">
+          <label>解像度
+            <select id="dpi">
+              <option value="350">350 dpi（標準）</option>
+              <option value="600" selected>600 dpi（高精細）</option>
+              <option value="1200">1200 dpi（最高）</option>
+            </select>
+          </label>
+          <label class="chk"><input type="checkbox" id="bleed"> 塗り足し 3mm を付ける（印刷会社入稿用）</label>
+        </div>
+        <div class="dl-buttons">
+          <button type="button" class="btn primary" id="dlPdf">PDF（名刺1枚）</button>
+          <button type="button" class="btn" id="dlPng">PNG 画像</button>
+          <button type="button" class="btn" id="dlSheet">A4 10面 PDF（家庭用プリンタ）</button>
+        </div>
+        <p class="hint">
+          ・名刺サイズは日本の標準 <b>91×55mm</b> です。<br>
+          ・「A4 10面 PDF」は市販のマイクロミシン名刺用紙（A4・10面、上下11mm／左右14mm余白）にそのまま印刷できます。印刷時は「実際のサイズ（100%）」を選んでください。<br>
+          ・入力内容はこのブラウザ内にのみ保存され、外部には送信されません。
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">© KODAIRA SVCs — こだいら災害ボランティアセンターサポーターズ</footer>
+
+  <script src="assets.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
