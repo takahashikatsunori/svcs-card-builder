@@ -2,7 +2,8 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fbf5e5">
   <title>名刺メーカー | こだいら災害ボランティアセンターサポーターズ（KODAIRA SVCs）</title>
   <meta name="description" content="こだいら災害ボランティアセンターサポーターズ（KODAIRA SVCs）の公式ロゴ・QRコード入り名刺をブラウザで作成し、PDF・高解像度画像でダウンロードできるツールです。">
   <meta property="og:title" content="KODAIRA SVCs 名刺メーカー">
@@ -81,15 +82,20 @@
       </form>
     </section>
 
-    <section class="panel preview">
-      <h2>プレビュー <small id="sizeInfo"></small></h2>
+    <div class="side">
+    <section class="panel preview" id="previewPanel">
+      <h2>プレビュー <small id="sizeInfo"></small>
+        <button type="button" class="mini-toggle" id="previewToggle" aria-label="プレビューの大きさを切り替え">拡大</button>
+      </h2>
       <div class="preview-stage" id="stage">
         <canvas id="previewCanvas"></canvas>
       </div>
       <p id="warn" class="warn" hidden></p>
+    </section>
 
+    <section class="panel download-panel" id="downloadPanel">
       <div class="download">
-        <h3>ダウンロード</h3>
+        <h3><span class="step">4</span>ダウンロード</h3>
         <div class="dl-options">
           <label>解像度
             <select id="dpi">
@@ -112,7 +118,22 @@
         </p>
       </div>
     </section>
+    </div>
   </main>
+
+  <a href="#downloadPanel" class="fab" id="fab">ダウンロードへ ↓</a>
+
+  <dialog id="saveDialog" class="save-dialog">
+    <h3>ファイルができました</h3>
+    <img id="saveThumb" alt="">
+    <p id="saveName" class="save-name"></p>
+    <div class="dl-buttons col">
+      <button type="button" class="btn primary" id="saveShare">共有・保存する</button>
+      <a class="btn" id="saveLink" download>ダウンロード</a>
+      <button type="button" class="btn ghost" id="saveClose">閉じる</button>
+    </div>
+    <p class="hint">iPhone の場合：画像は「共有・保存する」→「画像を保存」で写真に、PDF は「ファイルに保存」やプリントができます。</p>
+  </dialog>
 
   <footer class="site-footer">© KODAIRA SVCs — こだいら災害ボランティアセンターサポーターズ</footer>
 

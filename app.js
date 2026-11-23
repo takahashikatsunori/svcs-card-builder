@@ -459,11 +459,31 @@ async function draw() {
 }
 
 function safeName(s) { return (s || 'card').replace(/[\\/:*?"<>|\s]+/g, '_'); }
-function download(blob, name) {
+function directDownload(blob, name) {
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
 }
+const isTouch = () => window.matchMedia('(pointer: coarse)').matches;
+let lastUrl = null;
+// スマホ（共有APIあり）は保存ダイアログを表示、PCはそのままダウンロード
+function download(blob, name) {
+  const file = new File([blob], name, { type: blob.type });
+  const canShare = !!(navigator.canShare && navigator.canShare({ files: [file] }));
+  if (!isTouch() || !canShare || typeof HTMLDialogElement !== 'function') return directDownload(blob, name);
+  if (lastUrl) URL.revokeObjectURL(lastUrl);
+  lastUrl = URL.createObjectURL(blob);
+  const dlg = $('#saveDialog');
+  $('#saveThumb').src = blob.type === 'image/png' ? lastUrl : $('#previewCanvas').toDataURL('image/jpeg', 0.8);
+  $('#saveName').textContent = name;
+  $('#saveLink').href = lastUrl; $('#saveLink').download = name;
+  $('#saveShare').onclick = async () => {
+    try { await navigator.share({ files: [file], title: name }); dlg.close(); }
+    catch (e) { if (e.name !== 'AbortError') directDownload(blob, name); }
+  };
+  dlg.showModal();
+}
+$('#saveClose').onclick = () => $('#saveDialog').close();
 async function withBusy(btn, fn) {
   btn.disabled = true; const t = btn.textContent; btn.textContent = '生成中…';
   try { readForm(); await ensureFonts(state); await new Promise(r => setTimeout(r, 30)); await fn(); }
@@ -502,6 +522,18 @@ $('#dlSheet').onclick = e => withBusy(e.currentTarget, async () => {
 
 form.addEventListener('input', refresh);
 form.addEventListener('change', refresh);
+
+// スマホ：プレビュー拡大切替
+$('#previewToggle').onclick = () => {
+  const p = $('#previewPanel'); const on = p.classList.toggle('expanded');
+  $('#previewToggle').textContent = on ? '縮小' : '拡大';
+};
+// スマホ：ダウンロード欄が見えている間は「ダウンロードへ」ボタンを隠す
+if ('IntersectionObserver' in window) {
+  new IntersectionObserver(es => es.forEach(e => $('#fab').classList.toggle('hide', e.isIntersecting)), { threshold: 0.15 })
+    .observe($('#downloadPanel'));
+}
+$('#fab').onclick = e => { e.preventDefault(); $('#downloadPanel').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
 
 (async function init() {
   const A = window.SVCS_ASSETS;
